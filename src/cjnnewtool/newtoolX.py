@@ -16,6 +16,7 @@ import os.path
 # import io
 # import tempfile
 import time
+import datetime
 import re
 import subprocess
 import signal
@@ -38,11 +39,17 @@ except:
         __version__ = importlib_metadata.version(__package__ or __name__)
         # print ("Using importlib_metadata for __version__ assignment")
     except:
-        __version__ = "0.1 X"
+        __version__ = "0.2 X"
         # print ("Using local __version__ assignment")
 
-# from cjnfuncs.cjnfuncs import set_toolname, setup_logging, logging, config_item, getcfg, mungePath, deploy_files, timevalue, retime, requestlock, releaselock, snd_notif, snd_email
-from cjnfuncs.cjnfuncs import set_toolname, logging, config_item, getcfg, mungePath, deploy_files, timevalue
+from cjnfuncs.core          import set_toolname, logging, ConfigError    #, setuplogging, SndEmailError
+from cjnfuncs.configman     import config_item
+from cjnfuncs.mungePath     import mungePath
+from cjnfuncs.deployfiles   import deploy_files
+from cjnfuncs.timevalue     import timevalue, retime
+# from cjnfuncs.resourcelock  import resource_lock
+# from cjnfuncs.SMTP          import snd_notif, snd_email
+import cjnfuncs.core as core
 
 
 # Configs / Constants
@@ -57,9 +64,6 @@ SYSTEM          = platform.system()     # 'Linux', 'Windows', ...
 
 
 def main():
-    global tool
-    global logging, getcfg, mungePath, timevalue, retime, requestlock, releaselock, snd_notif, snd_email
-    
     # code examples
     logging.warning(f"Python version <{PY_VERSION}>")
     logging.warning(f"Platform       <{SYSTEM}>")
@@ -72,6 +76,8 @@ def main():
             uptime = subprocess.run(_cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True).stdout
     except Exception as e:
         logging.warning (f"Getting uptime failed:\n  {e}")
+    except Exception:
+        logging.exception (f"Getting uptime failed")
     else:
         logging.warning (uptime.replace('\n',''))
 
@@ -82,10 +88,10 @@ def main():
 
     # logging.warning (f"Update switch <{args.update}>")
 
-    logging.warning (f"Making tool data directory <{tool.data_dir}>")
-    mungePath(base_path=tool.data_dir, mkdir=True)      # Make dir if not yet existing
+    logging.warning (f"Making tool data directory <{core.tool.data_dir}>")
+    mungePath(base_path=core.tool.data_dir, mkdir=True)      # Make dir if not yet existing
 
-    out_file = mungePath(OUTFILE, tool.data_dir).full_path
+    out_file = mungePath(OUTFILE, core.tool.data_dir).full_path
     logging.warning (f"Writing to <{out_file}>")
     with out_file.open("w") as outfile:
         outfile.write(f"Python version <{PY_VERSION}>\n")
@@ -93,22 +99,65 @@ def main():
 
 
 def service():
-    global tool, config
-    global logging, getcfg, mungePath, timevalue, retime, requestlock, releaselock, snd_notif, snd_email
+    global network_error
     logging.info ("Entering service loop.  Edit config file 'testvar'.  Ctrl-C to exit")
-    next_run = time.time()
+    first = True
+    missing_config_file = False
+    network_error = False
+    
+    next_run_dt = datetime.datetime.now()
+    tick = 0
+
     while True:
-        if time.time() > next_run:
-            if config.loadconfig(flush_on_reload=True):       # Refresh only if file changes
-                print ("Config file reloaded")
-                logging.warning(f"NOTE - The config file has been reloaded.")
-                logging.warning(f"testvar                {getcfg('testvar', None)}  type {type(getcfg('testvar', None))}")
-                logging.warning(f"Current LogFile        {tool.log_full_path}")
-                logging.warning(f"Config LogLevel        {getcfg('LogLevel', None)}")
-                logging.warning(f"Current logging level  {logging.getLogger().level}")
-                logging.info ("info  level log")
-                logging.debug("debug level log")
-            next_run += timevalue(getcfg("ServiceLoopTime", "1s")).seconds
+        try:
+            # This code allows the config file to disappear (ie, network dropped) without
+            # aborting.  Unhandled side effect:  If an _imported_ config file is not available then
+            # the cfg will have been flushed and only partially reloaded, likely leading to a crash.
+            reloaded = config.loadconfig(flush_on_reload=True,
+                                         tolerate_missing=True,
+                                         call_logfile_wins=call_logfile_override) #, ldcfg_ll=20)
+            if reloaded == -1:      # config file not found
+                network_error = True
+                if not missing_config_file:
+                    missing_config_file = True
+                    logging.info(f"Can't find or load the config file <{config.config_full_path}> - skipping reload check.")
+            else:                   # config file found
+                network_error = False
+                if missing_config_file:
+                    missing_config_file = False
+                    logging.info(f"Config file <{config.config_full_path}> found again.")
+        except ConfigError as e:
+            logging.error(f"Error when loading config file.  Aborting.:\n  {e}")
+            sys.exit()
+
+        if reloaded == 1:
+            logging.warning ("Config file reloaded")
+            logging.warning(f"testvar                {config.getcfg('testvar', None)}  type {type(config.getcfg('testvar', None))}")
+            logging.warning(f"Current LogFile        {core.tool.log_full_path}")
+            logging.warning(f"Config LogLevel        {config.getcfg('LogLevel', None)}")
+            logging.warning(f"Current logging level  {logging.getLogger().level}")
+            logging.info ("info  level log")
+            logging.debug("debug level log")
+            tick = 0
+
+        if first  or  reloaded == 1:
+            if first:
+                first = False
+            else:                   # reloaded case
+                pass
+                # Do any cleanup before re-setup
+
+            # Do setup stuff
+
+            if reloaded == 1:
+                logging.info("***** Restarting Service loop *****")
+
+
+        now_dt = datetime.datetime.now()
+        if now_dt > next_run_dt:
+            print (tick)
+            tick += 1
+            next_run_dt += datetime.timedelta(seconds=timevalue(config.getcfg("ServiceLoopTime", "1s")).seconds)
         time.sleep(0.5)
 
 
@@ -125,11 +174,10 @@ signal.signal(signal.SIGTERM, int_handler)      # kill
 
 
 def cli():
-    global tool, config, args, logfile_override
-    global logging, getcfg, mungePath, timevalue, retime, requestlock, releaselock, snd_notif, snd_email
+    global config, args, call_logfile_override
 
-    tool = set_toolname (TOOLNAME)
-    print (tool.stats())
+    set_toolname (TOOLNAME)
+    print (core.tool)
 
     parser = argparse.ArgumentParser(description=__doc__ + __version__, formatter_class=argparse.RawTextHelpFormatter)
     # parser.add_argument('Infile',                                               # Argparse argument examples
@@ -158,7 +206,7 @@ def cli():
                         help=f"Install starter files in user space.")
     parser.add_argument('--setup-site', action='store_true',
                         help=f"Install starter files in system-wide space. Run with root prev.")
-    parser.add_argument('-V', '--version', action='version', version=f"{tool.toolname} {__version__}",
+    parser.add_argument('-V', '--version', action='version', version=f"{core.tool.toolname} {__version__}",
                         help="Return version number and exit.")
     args = parser.parse_args()
 
@@ -186,37 +234,36 @@ def cli():
     # Load config file and setup logging
     # If no CLI --log-file, then remove 'call_logfile=args.log_file' from loadconfig calls
     # If using interactive mode then don't give --log-file so that it defaults to None, thus logging goes to console
-    # Calculate logfile_override based on interactive needs.  Add 'or args.log_file is not None' if CLI --log-file should override config LogFile
-    logfile_override = True  if not args.service  else False        # or args.log_file is not None
+    # Calculate call_logfile_override based on interactive needs:  True if not service mode then log to console
+    #   Add 'or args.log_file is not None' if CLI --log-file should override config LogFile.
+    call_logfile_override = True  if not args.service  else False        # or args.log_file is not None
     try:
-        # tool.stats()
         config = config_item(args.config_file)
-        config.loadconfig(call_logfile_wins=logfile_override)         #, call_logfile=args.log_file, ldcfg_ll=10)
-        # config.stats()
-    except Exception as e:
-        logging.error(f"Failed loading config file <{args.config_file}>. \
-\n  Run with  '--setup-user' or '--setup-site' to install starter files.\n  {e}\n  Aborting.")
+        config.loadconfig(call_logfile_wins=call_logfile_override)       #, call_logfile=args.log_file, ldcfg_ll=10)
+    except Exception:
+        logging.exception(f"Failed loading config file <{args.config_file}>.  Aborting. \
+\n  Run with  '--setup-user' or '--setup-site' to install starter files.")
         sys.exit(1)
 
 
     # Verbosity level
     # To use --verbose, don't include LogLevel in the config file (LogLevel would win)
-    # if not args.service  and  args.verbose is not None:      # Else logging level is set to logging.WARNING (default ldcfg_ll)
+    # if not args.service  and  args.verbose is not None:      # Python default logging level is logging.WARNING 
     #     _level = [logging.WARNING, logging.INFO, logging.DEBUG][args.verbose  if args.verbose <= 2  else 2]
     #     logging.getLogger().setLevel(_level)
     #     logging.info (f"Logging level set to <{_level}>")
 
 
-    logging.warning (f"========== {tool.toolname} ({__version__}) ==========")
+    logging.warning (f"========== {core.tool.toolname} ({__version__}) ==========")
     logging.warning (f"Config file <{config.config_full_path}>")
 
 
     # Print log
     if args.print_log:
         try:
-            _lf = mungePath(getcfg("LogFile"), tool.log_dir_base).full_path
+            _lf = mungePath(config.getcfg("LogFile"), core.tool.log_dir_base).full_path
             print (f"Tail of  <{_lf}>:")
-            _xx = collections.deque(_lf.open(), getcfg("PrintLogLength", PRINTLOGLENGTH))
+            _xx = collections.deque(_lf.open(), config.getcfg("PrintLogLength", PRINTLOGLENGTH))
             for line in _xx:
                 print (line, end="")
         except Exception as e:
@@ -240,7 +287,7 @@ def cli():
     if args.service:
         service()
 
-    sys.exit(main())
+    main()
 
     
 if __name__ == '__main__':

@@ -82,7 +82,7 @@ $$ wanstatus
 - Install wanstatus from PyPI (pip install wanstatus).
 - Install the initial configuration files (`wanstatus --setup-user` places files at ~/.config/wanstatus).
 - Edit/configure `wanstatus.cfg`, `creds_SMTP`, and `creds_wanstatus` as needed.
-- Run manually as `./wanstatus`, or install the systemd service.
+- Run manually as `wanstatus`, or install the systemd service.
 - When running in service mode (continuously looping) the config file may be edited and is reloaded when changed.  This allows for changing settings without having to restart the service.
 
 

@@ -5,14 +5,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = 'cjnnewtool'  #"newtoolname"
-version = "0.1a1"
+version = "0.2"
 description = "one liner"
 readme = "README.md"
 requires-python = ">=3.6"       # Centos 7 uses 3.6.8
 authors = [ {name = "Chris Nelson", email = "github@cjnaz.com"} ]
 license = {file = "LICENSE.txt"}
 dependencies = [
-    'cjnfuncs >= 2.0.1',
+    'cjnfuncs >= 2.1b1',
     'importlib-metadata; python_version<"3.8"',
     ]
 classifiers = [                 # https://pypi.org/classifiers/
