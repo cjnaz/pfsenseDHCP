@@ -1,37 +1,39 @@
+[project]
+name = 'pfsenseDHCP'  # No '_' or '-' in names
+version = "1.0b1"
+    # 1.0b1 - Adjusted for Kea DHCP server support
+    # 0.1b1 - New
+description = "Merge DHCP static assignments .csv data into pfSense DHCP4 Server config file"
+readme = "README.md"
+requires-python = ">=3.9"
+authors = [ {name = "Chris Nelson", email = "github@cjnaz.com"} ]
+license = 'MIT'
+dependencies = [
+    'cjnfuncs >= 3.0',
+    'lxml',
+    ]
+classifiers = [                 # https://pypi.org/classifiers/
+    "Topic :: System :: Networking",
+    "Topic :: System :: Networking :: Firewalls",
+    ]
+
+
 [build-system]
-requires = ["setuptools"] #, "setuptools-scm"]
+requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 
-[project]
-name = 'cjnnewtool'  #"newtoolname"
-version = "0.2"
-description = "one liner"
-readme = "README.md"
-requires-python = ">=3.6"       # Centos 7 uses 3.6.8
-authors = [ {name = "Chris Nelson", email = "github@cjnaz.com"} ]
-license = {file = "LICENSE.txt"}
-dependencies = [
-    'cjnfuncs >= 2.1b1',
-    'importlib-metadata; python_version<"3.8"',
-    ]
-classifiers = [                 # https://pypi.org/classifiers/
-    "Topic :: Software Development :: Libraries :: Python Modules",
-    "Topic :: System :: Monitoring",
-    "Topic :: System :: Networking :: Monitoring",
-    ]
-
-
 [project.scripts]
-newtoolcli = "cjnnewtool.newtoolX:cli"
+pfsenseDHCP = "pfsenseDHCP.pfsenseDHCP:cli"
 
 
 [project.urls]
-repository = "https://github.com/cjnaz/tool_template"
+repository = "https://github.com/cjnaz/pfsenseDHCP"
 
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
 
 [tool.setuptools.package-data]
 "*" = ["deployment_files/*"]
