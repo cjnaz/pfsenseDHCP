@@ -1,7 +1,8 @@
 [project]
 name = 'pfsenseDHCP'  # No '_' or '-' in names
-version = "1.0b1"
-    # 1.0b1 - Adjusted for Kea DHCP server support
+version = "2.0rc1"
+    # 2.0rc1 - Reworked subnet tracking and cidr handling
+    # 2.0b1 - Adjusted for Kea DHCP server support.  Feature complete.
     # 0.1b1 - New
 description = "Merge DHCP static assignments .csv data into pfSense DHCP4 Server config file"
 readme = "README.md"
