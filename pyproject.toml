@@ -1,6 +1,7 @@
 [project]
 name = 'pfsenseDHCP'  # No '_' or '-' in names
-version = "2.0rc1"
+version = "2.0"
+    # 2.0 - Release
     # 2.0rc1 - Reworked subnet tracking and cidr handling
     # 2.0b1 - Adjusted for Kea DHCP server support.  Feature complete.
     # 0.1b1 - New

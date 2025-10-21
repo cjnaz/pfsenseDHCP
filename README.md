@@ -1,11 +1,11 @@
 # pfsenseDHCP - Manage your DHCP4 static mappings in a .csv master file
 
-This tool enables you to manage your network static host assignments in a Excel-style .csv file.  **Why?**  It's tedious to 
+This tool enables you to manage your network static host assignments in an Excel-style .csv file.  **Why?**  It's tedious to 
 manage static assignments using the pfSense GUI.  All features of a DHCP4 static host assignment may be defined by simply
 adding the appropriate columns to the .csv file, and the static host assignments will naturally track pfSense version changes.
-- ISC and Kea backends are supported
+- ISC and Kea DHCP server backends are supported
 - This tool runs on Windows and Linux
-- Tested on pfSense versions 23.09.1-RELEASE and 25.07.1-RELEASE
+- Tested on pfSense+ versions 23.09.1-RELEASE and 25.07.1-RELEASE
 - Tested on Python 3.9 and 3.11
 
 <br/>
@@ -153,7 +153,7 @@ $ pfsenseDHCP /pathto/Downloads -v
     ntpserver | NTP Server | ntp-servers
     custom_kea_config | JSON Configuration | option-data | See kea documentation for options.  The .xml format is base64 encoded.
 
-- NOTEs on xml syntax variations
+- Notes on xml syntax variations
   - pfsenseDHCP uses the lxml library, which uses the _empty-element tag_ syntax style for tags with no content, whereas pfSense backup outputs the _start-tag / end-tag pair_ syntax.  Both are equivalent and pfSense loads the empty-element tag syntax correctly.
 
   - pfSense backup outputs raw text fields, such as `descr`, wrapped in a CDATA structure, whereas pfsenseDHCP uses lxml's feature to automatically escape xml special characters (eg, '>' in the descr text becomes '&gt'), which loads correctly into pfSense.
