@@ -20,10 +20,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Topic :: System :: Networking",
     "Topic :: System :: Networking :: Firewalls",
-]classifiers = [                 # https://pypi.org/classifiers/
-    "Topic :: System :: Networking",
-    "Topic :: System :: Networking :: Firewalls",
-    ]
+]
 
 
 [build-system]
