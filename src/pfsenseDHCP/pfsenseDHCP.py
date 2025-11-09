@@ -35,7 +35,7 @@ import importlib.metadata
 __version__ = importlib.metadata.version(__package__ or __name__)
 
 from cjnfuncs.core          import set_toolname, setuplogging, logging
-from cjnfuncs.mungePath     import mungePath, check_path_exists
+from cjnfuncs.mungePath     import mungePath
 from cjnfuncs.deployfiles   import deploy_files
 import cjnfuncs.core as core
 
@@ -98,7 +98,7 @@ def main():
 
 
     # Build the <staticmap> blocks
-    with CSV_master_list_mp.full_path.open('rt') as csvfile:
+    with Path(CSV_master_list).open('rt') as csvfile:
         csv_table = csv.DictReader(csvfile, dialect='excel')
 
 
@@ -236,7 +236,7 @@ def get_networkID(ipaddr):
 
 #---------------------------------------------------------------------------------------------
 def cli():
-    global in_config_file, out_config_file, CSV_master_list_mp
+    global in_config_file, out_config_file, CSV_master_list
     global args
 
     set_toolname (TOOLNAME)
@@ -272,43 +272,39 @@ def cli():
     logging.warning (f"========== {core.tool.toolname} ({__version__}) ==========")
 
 
-    inconfig_mp = mungePath(args.Config_backup, '.', set_attributes=True)   # default to CWD
-    in_config_file = ''
-    if inconfig_mp.is_dir:
+    inconfig_mp = mungePath(args.Config_backup, '.')    # default to CWD
+    if inconfig_mp.full_path.is_dir():
         files = inconfig_mp.full_path.glob('dhcpd-config*.xml')             # find newest backup .xml
         try:
             in_config_file = max(files, key=os.path.getctime)
         except:
             logging.error(f"No appropriate config backup .xml files found at <{inconfig_mp.full_path}> - Aborting")
             sys.exit(1)
-    elif inconfig_mp.is_file:
+    elif inconfig_mp.full_path.exists():        # is_file
         in_config_file = inconfig_mp.full_path
-
-    if in_config_file == '':
-        logging.error(f"Input argument Config_backup <{inconfig_mp.full_path}> is not a valid path to a file or directory - Aborting")
+    else:
+        logging.error(f"Specified Config_backup file <{inconfig_mp.full_path}> not found - Aborting")
         sys.exit(1)
     logging.warning (f"  Input config backup file:    {in_config_file}")
-
 
     vnum = 1
     while 1:
         out_config_file = Path(str(in_config_file) + f'-csv{vnum}')
-        if check_path_exists(out_config_file):
+        if out_config_file.exists():
             vnum += 1
         else:
             break
     logging.warning (f"  Output config backup file:   {out_config_file}")
 
 
-    CSV_master_list_mp = mungePath(args.CSV_master_list, core.tool.config_dir, set_attributes=True)
-    if not CSV_master_list_mp.exists  or  not CSV_master_list_mp.is_file:
-        logging.error(f"Input argument CSV_master_list {CSV_master_list_mp.full_path} is not a valid file path - Aborting")
+    CSV_master_list = mungePath(args.CSV_master_list, '.').full_path
+    if not CSV_master_list.exists():
+        logging.error(f"Specified CSV_master_list <{CSV_master_list}> not found - Aborting")
         sys.exit(1)
-    logging.warning (f"  CSV master list input file:  {CSV_master_list_mp.full_path}")
+    logging.warning (f"  CSV master list input file:  {CSV_master_list}")
 
     main()
 
 
-    
 if __name__ == '__main__':
     sys.exit(cli())

@@ -1,6 +1,7 @@
 [project]
-name = 'pfsenseDHCP'  # No '_' or '-' in names
-version = "2.0.1"
+name = 'pfsenseDHCP'
+version = "2.0.2"
+    # 2.0.2 - Windows fixes
     # 2.0.1 - tweaked pyproject.toml - added keywords
     # 2.0 - Release
     # 2.0rc1 - Reworked subnet tracking and cidr handling
@@ -13,7 +14,7 @@ authors = [ {name = "Chris Nelson", email = "github@cjnaz.com"} ]
 license = 'MIT'
 keywords = ["cjnaz", "pfsense", "dhcp", "kea", "firewall"]
 dependencies = [
-    'cjnfuncs >= 3.0',
+    'cjnfuncs >= 3.1',
     'lxml',
     ]
 classifiers = [

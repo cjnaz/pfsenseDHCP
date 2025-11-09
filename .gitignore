@@ -7,3 +7,4 @@ log*.txt
 *.egg-info/
 DHCP_master_list.csv
 .~lock.DHCP_master_list.csv#
+.vscode/

@@ -172,6 +172,7 @@ $ pfsenseDHCP /pathto/Downloads -v
 ---
 
 ## Version history
+- 2.02 251109 - Windows fixes
 - 2.0 251022 - Packaged and upgraded for Kea DHCP server support
 - 1.0 211025 - Reworked to use real .xml handling (lxml dependency). Supports multiple dhcpd subnets.
 - 0.1 211009 - Bug fix for row ignore based on first column blank. Properly carry over the real postamble and block indentation.
