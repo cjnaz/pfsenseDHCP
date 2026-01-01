@@ -1,0 +1,25 @@
+#Active,hostname,ipaddr,mac,descr,#Notes,domain,custom_kea_config,earlydnsregpolicy
+y,Router2,192.168.1.2,01:23:45:67:89:ab,,Netgate GS-1100 pfSense+,,,
+y,MainSwitch,192.168.1.3,01:23:45:67:89:ab,TrendNet TEG-S80ES,,,,
+,,,,,,,,
+y,Desktop,192.168.1.10,01:23:45:67:89:ab,,,mydomain.lan,,
+y,HP_printer,192.168.1.16,01:23:45:67:89:ab,,,,,enable
+,,,,,,,,
+y,TV_LV,192.168.1.20,01:23:45:67:89:ab,,,,"        {
+            ""option-data"": [
+                {
+                    ""name"": ""vivso-suboptions"",
+                    ""data"": ""4491""
+                },
+                {
+                    ""name"": ""tftp-servers"",
+                    ""space"": ""vendor-4491"",
+                    ""data"": ""10.1.1.202,10.1.1.203""
+                }
+            ]
+        }
+",
+,FireStick4k_LV,192.168.1.22,01:23:45:67:89:ab,,,,,
+y,Sensi_thermo_shop,192.168.1.43,01:23:45:67:89:ab,,,,,
+y,TPLinkSS,192.168.1.44,01:23:45:67:89:ab,,,,,
+,Cam1,192.168.1.45,01:23:45:67:89:ab,Left yard,,,,

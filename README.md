@@ -98,7 +98,9 @@ $ pfsenseDHCP /pathto/Downloads -v
 - In pfSense, go to Services > DHCP Server and check that the interface DHCP Static Mappings look proper.
   - Re-edit the .csv file, regenerate the `.xml-csvX` file, and reload as needed. `X` is an integer that increments for each generated version.
 
-- When happy with the loaded mappings, hit the `Restart Service` icon at the top-right of the page.  Your mappings are now live!
+- When happy with the loaded mappings, hit the `Restart Service` icon at the top-right of the page.  Your assigned mappings are now live!  DHCP requests from static mapped clients will get the assigned IP addresses.  You may want to restart/reboot/refresh the network on clients to get the newly assigned IP addresses.
+
+- Lastly, go to Services > DNS Resolver > General Settings and hit the Restart Service icon.  Your assigned hostnames are now recognized on the LAN.
 
 <br/>
 
