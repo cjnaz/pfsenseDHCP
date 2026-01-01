@@ -100,7 +100,7 @@ $ pfsenseDHCP /pathto/Downloads -v
 
 - When happy with the loaded mappings, hit the `Restart Service` icon at the top-right of the page.  Your assigned mappings are now live!  DHCP requests from static mapped clients will get the assigned IP addresses.  You may want to restart/reboot/refresh the network on clients to get the newly assigned IP addresses.
 
-- Lastly, go to Services > DNS Resolver > General Settings and hit the Restart Service icon.  Your assigned hostnames are now recognized on the LAN.
+- Lastly, go to Services > DNS Resolver > General Settings and hit the `Restart Service` icon.  Your assigned hostnames are now recognized on the LAN.
 
 <br/>
 
