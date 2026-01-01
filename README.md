@@ -174,6 +174,7 @@ $ pfsenseDHCP /pathto/Downloads -v
 ---
 
 ## Version history
+- 2.0.3 260101 - README.md addition, fixed src/pfsenseDHCP/deployment_files/ inclusion in git
 - 2.0.2 251109 - Windows fixes
 - 2.0 251022 - Packaged and upgraded for Kea DHCP server support
 - 1.0 211025 - Reworked to use real .xml handling (lxml dependency). Supports multiple dhcpd subnets.
